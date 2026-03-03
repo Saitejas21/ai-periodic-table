@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic Table of AI Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0e1318;
+    --border: #1e2a35;
+    --text: #c8d8e8;
+    --muted: #5a7080;
+    --accent: #e8a020;
+
+    /* Category colors */
+    --llm: #e85d20;
+    --coding: #20b8e8;
+    --image: #9b59e8;
+    --video: #e8205d;
+    --audio: #20e8a0;
+    --search: #e8d820;
+    --agents: #e85d20;
+    --automation: #20e860;
+    --productivity: #5d9be8;
+    --data: #e820b8;
+    --design: #ff8c42;
+    --research: #42d4e8;
+    --writing: #a8e842;
+    --infra: #e84242;
+    --voice: #c842e8;
+    --multimodal: #ffb830;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 20px 60px;
+    overflow-x: auto;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 80px);
+    letter-spacing: 0.12em;
+    color: #fff;
+    line-height: 1;
+    text-shadow: 0 0 60px rgba(232,160,32,0.3);
+  }
+
+  .page-header p {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .legend-item:hover { color: var(--text); }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .table-wrapper {
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+    padding-bottom: 16px;
+  }
+
+  .pt-grid {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 4px;
+    min-width: 1200px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .element {
+    aspect-ratio: 0.9;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 5px 5px 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .element::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--cat-color, #444);
+    opacity: 0.9;
+  }
+
+  .element:hover {
+    border-color: var(--cat-color, #888);
+    background: #141c24;
+    transform: scale(1.08) translateY(-2px);
+    z-index: 10;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6), 0 0 0 1px var(--cat-color, #888);
+  }
+
+  .el-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    line-height: 1;
+  }
+
+  .el-symbol {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--cat-color, #fff);
+    line-height: 1;
+    text-align: center;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 20px var(--cat-color, transparent);
+  }
+
+  .el-name {
+    font-size: 7.5px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .el-cat {
+    font-family: 'Space Mono', monospace;
+    font-size: 6px;
+    color: var(--muted);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .empty { background: transparent; border-color: transparent; }
+  .empty:hover { transform: none; box-shadow: none; }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px dashed #1a2530;
+    border-radius: 3px;
+    aspect-ratio: 0.9;
+  }
+
+  .section-label span {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    color: #2a3a48;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    display: none;
+    position: fixed;
+    background: #0a1018;
+    border: 1px solid var(--cat-color, #333);
+    border-radius: 6px;
+    padding: 14px 16px;
+    width: 260px;
+    z-index: 1000;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.8);
+    pointer-events: none;
+  }
+
+  .tooltip.visible { display: block; }
+
+  .tt-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .tt-symbol {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: var(--cat-color, #fff);
+    line-height: 1;
+    text-shadow: 0 0 24px var(--cat-color, transparent);
+  }
+
+  .tt-info { flex: 1; }
+  .tt-name { font-size: 13px; font-weight: 600; color: #fff; line-height: 1.2; }
+  .tt-cat { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+  .tt-num { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--muted); }
+
+  .tt-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    border-top: 1px solid #1a2530;
+    padding-top: 10px;
+  }
+
+  .tt-use {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  .divider-row {
+    grid-column: 1 / -1;
+    height: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .pt-grid { min-width: 900px; gap: 3px; }
+    .el-symbol { font-size: 18px; }
+    .el-name { font-size: 6.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Periodic Table of AI Tools</h1>
+  <p>118 elements of the AI ecosystem — classified, quantified, deployed</p>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="table-wrapper">
+  <div class="pt-grid" id="grid"></div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const CATEGORIES = {
+  LLM:         { label: 'Foundation LLMs',     color: '#e85d20' },
+  CODING:      { label: 'Coding & Dev',         color: '#20b8e8' },
+  IMAGE:       { label: 'Image Generation',     color: '#9b59e8' },
+  VIDEO:       { label: 'Video Generation',     color: '#e8205d' },
+  AUDIO:       { label: 'Audio & Music',        color: '#20e8a0' },
+  SEARCH:      { label: 'Search & Research',    color: '#e8d820' },
+  AGENTS:      { label: 'AI Agents',            color: '#ff6b35' },
+  AUTO:        { label: 'Automation',           color: '#20e860' },
+  PROD:        { label: 'Productivity',         color: '#5d9be8' },
+  DATA:        { label: 'Data & Analytics',     color: '#e820b8' },
+  DESIGN:      { label: 'Design & Creative',    color: '#ff8c42' },
+  WRITE:       { label: 'Writing & Copy',       color: '#a8e842' },
+  VOICE:       { label: 'Voice & TTS',          color: '#c842e8' },
+  INFRA:       { label: 'AI Infrastructure',   color: '#e84242' },
+  MULTI:       { label: 'Multimodal',           color: '#ffb830' },
+  MEET:        { label: 'Meetings & Collab',    color: '#42d4e8' },
+};
+
+// Each element: [num, symbol, name, cat, desc, useCase, col, row]
+// Grid is 18 cols, we'll position manually
+const ELEMENTS = [
+  // Row 1 — LLMs (cols 1-7, gap, 12-18)
+  { n:1,  sym:'GPT',  name:'GPT-4o',       cat:'LLM',    desc:'OpenAI\'s flagship multimodal LLM. Handles text, image, audio, file analysis. The baseline everyone compares against.', use:'General AI, reasoning, code, analysis', col:1,  row:1 },
+  { n:2,  sym:'CLD',  name:'Claude 3.5',   cat:'LLM',    desc:'Anthropic\'s model. Best-in-class for long documents, nuanced writing, and coding. 200K context window.', use:'Writing, code, long-doc analysis', col:2,  row:1 },
+  { n:3,  sym:'GEM',  name:'Gemini 2.0',   cat:'LLM',    desc:'Google\'s multimodal model with 2M token context. Deep Google ecosystem integration.', use:'Research, multimodal, video analysis', col:3,  row:1 },
+  { n:4,  sym:'GRK',  name:'Grok 3',       cat:'LLM',    desc:'xAI\'s model with real-time X/Twitter data access. Strong reasoning and DeepSearch mode.', use:'Real-time info, reasoning, X integration', col:4,  row:1 },
+  { n:5,  sym:'DSK',  name:'DeepSeek',     cat:'LLM',    desc:'Chinese open-source LLM. DeepSeek-V3 is 671B MoE model that rivals GPT-4 at fraction of cost.', use:'Cost-efficient reasoning, coding', col:5,  row:1 },
+  { n:6,  sym:'LMA',  name:'Llama 3.3',    cat:'LLM',    desc:'Meta\'s open-source LLM family. Run locally or on-cloud. Foundation for many custom deployments.', use:'Local inference, fine-tuning, open-source', col:6,  row:1 },
+  { n:7,  sym:'MIS',  name:'Mistral',      cat:'LLM',    desc:'French open-source LLM. Efficient, fast, strong at European languages. Mixtral MoE variant excels.', use:'Efficient inference, multilingual', col:7,  row:1 },
+  { n:8,  sym:'QWN',  name:'Qwen 2.5',     cat:'LLM',    desc:'Alibaba\'s multilingual model family. Strong at code and math. Leading Chinese LLM.', use:'Multilingual, math, code', col:8,  row:1 },
+  { n:9,  sym:'CMD',  name:'Command R+',   cat:'LLM',    desc:'Cohere\'s enterprise LLM optimized for RAG and business workflows. Strong retrieval capability.', use:'RAG, enterprise search, business ops', col:9,  row:1 },
+  { n:10, sym:'PHI',  name:'Phi-4',        cat:'LLM',    desc:'Microsoft\'s small but powerful language model. Outperforms much larger models on reasoning benchmarks.', use:'Edge deployment, efficient reasoning', col:10, row:1 },
+  { n:11, sym:'GEM',  name:'Gemma 3',      cat:'LLM',    desc:'Google\'s lightweight open model. Runs on consumer hardware. Excellent base for fine-tuning.', use:'Local runs, fine-tuning, low-resource', col:11, row:1 },
+  { n:12, sym:'NMO',  name:'Nemotron',     cat:'LLM',    desc:'NVIDIA\'s LLM optimized for GPU inference at scale. Strong for enterprise deployments.', use:'GPU-optimized enterprise inference', col:12, row:1 },
+
+  // Row 2 — Coding tools (cols 1-9), Voice (10-14), Infra (15-18)
+  { n:13, sym:'CUR',  name:'Cursor',       cat:'CODING', desc:'AI-first code editor. Autocomplete + chat + agentic mode. Most widely adopted coding AI by developers.', use:'Full-stack dev, refactoring, bug fixes', col:1,  row:2 },
+  { n:14, sym:'CCL',  name:'Claude Code',  cat:'CODING', desc:'Anthropic\'s CLI agent. Deep reasoning for complex codebases. Best for architectural changes.', use:'Hard problems, codebase navigation, debug', col:2,  row:2 },
+  { n:15, sym:'CPT',  name:'Copilot',      cat:'CODING', desc:'GitHub\'s AI assistant. Native to VS Code + JetBrains. GPT-4 powered. 85%+ developer adoption.', use:'Autocomplete, PR reviews, IDE integration', col:3,  row:2 },
+  { n:16, sym:'WND',  name:'Windsurf',     cat:'CODING', desc:'Codeium\'s agentic IDE. Cascade agent handles multi-file changes. Strong for large refactors.', use:'Agentic coding, multi-file, large projects', col:4,  row:2 },
+  { n:17, sym:'CLN',  name:'Cline',        cat:'CODING', desc:'Open-source VS Code extension. Runs Claude/GPT with explicit tool control. Developer favorite for transparency.', use:'Open-source, full control, agentic tasks', col:5,  row:2 },
+  { n:18, sym:'CPX',  name:'Codex CLI',    cat:'CODING', desc:'OpenAI\'s terminal-based coding agent. GPT-5 powered. Multi-file, test-running, autonomous.', use:'Terminal workflows, autonomous coding', col:6,  row:2 },
+  { n:19, sym:'JUN',  name:'Junie',        cat:'CODING', desc:'JetBrains\' agentic AI for its IDE family. Deep IDE-native integration. Strong for JVM ecosystems.', use:'Java/Kotlin dev, JetBrains IDEs', col:7,  row:2 },
+  { n:20, sym:'AUG',  name:'Augment',      cat:'CODING', desc:'AI coding tool with full codebase context. First to achieve ISO 42001 AI certification.', use:'Enterprise coding, codebase-aware, safe', col:8,  row:2 },
+  { n:21, sym:'TRE',  name:'Trae',         cat:'CODING', desc:'ByteDance\'s free VS Code-based IDE. Unlimited Claude + GPT-4o access. Builder Mode for full projects.', use:'Free AI coding, project generation', col:9,  row:2 },
+  { n:22, sym:'ELV',  name:'ElevenLabs',   cat:'VOICE',  desc:'Industry-leading text-to-speech and voice cloning. 3000+ voices, 30+ languages. Best voice quality.', use:'Voiceovers, podcasts, TTS, voice cloning', col:10, row:2 },
+  { n:23, sym:'PLY',  name:'PlayAI',       cat:'VOICE',  desc:'Real-time voice AI for apps. Low latency TTS API. Strong for conversational AI products.', use:'Real-time voice, voice apps, TTS API', col:11, row:2 },
+  { n:24, sym:'MRF',  name:'Murf',         cat:'VOICE',  desc:'AI voice studio for business. Realistic voices, commercial licensing. Popular for e-learning.', use:'E-learning, ads, presentations, TTS', col:12, row:2 },
+  { n:25, sym:'WHS',  name:'Whisper',      cat:'VOICE',  desc:'OpenAI\'s open-source speech recognition. Near-human accuracy across 99 languages. Free to use.', use:'Transcription, subtitles, speech-to-text', col:13, row:2 },
+  { n:26, sym:'ASB',  name:'AssemblyAI',   cat:'VOICE',  desc:'Enterprise speech AI API. Transcription + speaker diarization + sentiment analysis.', use:'Speech analytics, call centers, media', col:14, row:2 },
+  { n:27, sym:'BDK',  name:'Bedrock',      cat:'INFRA',  desc:'AWS\'s managed AI service. Access Claude, Llama, Titan models via unified API with enterprise security.', use:'Cloud AI, enterprise deployment, AWS', col:15, row:2 },
+  { n:28, sym:'VTX',  name:'Vertex AI',    cat:'INFRA',  desc:'Google Cloud\'s AI platform. Gemini + custom model training + MLOps in one managed platform.', use:'Enterprise ML, model training, GCP', col:16, row:2 },
+  { n:29, sym:'AZR',  name:'Azure AI',     cat:'INFRA',  desc:'Microsoft\'s AI cloud. GPT-4o via Azure OpenAI Service. Enterprise compliance + private deployment.', use:'Enterprise LLMs, Azure ecosystem, compliance', col:17, row:2 },
+  { n:30, sym:'HGF',  name:'HuggingFace',  cat:'INFRA',  desc:'The GitHub of AI models. 500K+ models, datasets, Spaces for demos. Hub for open-source AI.', use:'Model hosting, fine-tuning, open-source hub', col:18, row:2 },
+
+  // Row 3 — Image gen (1-9), Search/Research (10-14), Agents (15-18)
+  { n:31, sym:'MJN',  name:'Midjourney',   cat:'IMAGE',  desc:'The gold standard for artistic image generation. Unmatched aesthetic quality. Discord-based workflow.', use:'Art, marketing visuals, concept art', col:1,  row:3 },
+  { n:32, sym:'FLX',  name:'Flux 1.1',     cat:'IMAGE',  desc:'Black Forest Labs\' open model. Photorealistic output, fast. Strong competitor to DALL-E and MJ.', use:'Photorealistic images, API integration', col:2,  row:3 },
+  { n:33, sym:'SDL',  name:'DALL-E 3',     cat:'IMAGE',  desc:'OpenAI\'s image gen. Best prompt-following. Deep ChatGPT integration. Safe content handling.', use:'Prompt-faithful images, in-ChatGPT workflows', col:3,  row:3 },
+  { n:34, sym:'SDX',  name:'Stable Diff',  cat:'IMAGE',  desc:'Open-source foundation model by Stability AI. Run locally. Endless community fine-tunes.', use:'Local gen, fine-tuning, LoRA, ComfyUI', col:4,  row:3 },
+  { n:35, sym:'IMG',  name:'Imagen 3',     cat:'IMAGE',  desc:'Google DeepMind\'s image model. Top-tier realism and detail. Available via Gemini and Vertex.', use:'High-quality visuals, Google ecosystem', col:5,  row:3 },
+  { n:36, sym:'IDG',  name:'Ideogram',     cat:'IMAGE',  desc:'Best-in-class for text rendering in images. Solves the "AI can\'t do typography" problem.', use:'Logos, posters, text-heavy designs', col:6,  row:3 },
+  { n:37, sym:'LEN',  name:'Leonardo',     cat:'IMAGE',  desc:'Game-focused AI art platform. Fine-tuned models for assets, characters, environments.', use:'Game assets, concept art, 3D textures', col:7,  row:3 },
+  { n:38, sym:'FIR',  name:'Firefly',      cat:'IMAGE',  desc:'Adobe\'s AI image gen. Commercially safe — trained on licensed stock. Photoshop integrated.', use:'Commercial design, safe licensing, PS workflow', col:8,  row:3 },
+  { n:39, sym:'CNV',  name:'Canva AI',     cat:'IMAGE',  desc:'Canva\'s built-in AI suite. Magic Studio, text-to-image, background removal. Accessible for non-designers.', use:'Social media, templates, marketing', col:9,  row:3 },
+  { n:40, sym:'PRX',  name:'Perplexity',   cat:'SEARCH', desc:'AI search engine. Real-time web + citations. Deep Research mode for structured reports. Used by millions.', use:'Research, fact-checking, cited answers', col:10, row:3 },
+  { n:41, sym:'NTB',  name:'NotebookLM',   cat:'SEARCH', desc:'Google\'s AI research companion. Upload docs → ask questions + generate audio podcasts from them.', use:'Document Q&A, research synthesis, podcast gen', col:11, row:3 },
+  { n:42, sym:'EXA',  name:'Exa',          cat:'SEARCH', desc:'Neural search API for developers. Semantic web search optimized for LLM retrieval use cases.', use:'RAG pipelines, AI apps, semantic search', col:12, row:3 },
+  { n:43, sym:'TAV',  name:'Tavily',       cat:'SEARCH', desc:'Search API built for LLM agents. Fast, structured results designed for agent tool use.', use:'AI agent search, RAG, real-time data', col:13, row:3 },
+  { n:44, sym:'YOU',  name:'You.com',      cat:'SEARCH', desc:'AI-powered search with citations and custom AI apps. Research + writing mode in one.', use:'Research assistant, AI search, summaries', col:14, row:3 },
+  { n:45, sym:'LCH',  name:'LangChain',    cat:'AGENTS', desc:'Most popular LLM application framework. Chains, agents, RAG pipelines. Huge ecosystem.', use:'LLM apps, RAG, agent development', col:15, row:3 },
+  { n:46, sym:'LGR',  name:'LangGraph',    cat:'AGENTS', desc:'LangChain\'s stateful agent framework. Build complex multi-step agent workflows with graph structure.', use:'Complex agents, stateful workflows, LLM ops', col:16, row:3 },
+  { n:47, sym:'AGN',  name:'AutoGen',      cat:'AGENTS', desc:'Microsoft\'s multi-agent framework. Orchestrate multiple AI agents in conversation to solve tasks.', use:'Multi-agent systems, enterprise automation', col:17, row:3 },
+  { n:48, sym:'CRW',  name:'CrewAI',       cat:'AGENTS', desc:'Role-based multi-agent framework. Assign agents specialized roles, let them collaborate on complex tasks.', use:'Autonomous teams, research automation', col:18, row:3 },
+
+  // Row 4 — Video gen (1-9), Automation (10-14), Productivity (15-18)
+  { n:49, sym:'SOR',  name:'Sora 2',       cat:'VIDEO',  desc:'OpenAI\'s video model. Cinematic quality, physics-aware. 20-second clips with audio. Top-tier.', use:'Cinematic video, brand content, storyboarding', col:1,  row:4 },
+  { n:50, sym:'RWY',  name:'Runway Gen-4', cat:'VIDEO',  desc:'Professional AI video studio. Text/image-to-video, motion brush, inpainting. Creator-grade output.', use:'Short films, ads, social video', col:2,  row:4 },
+  { n:51, sym:'VEO',  name:'Veo 3.2',      cat:'VIDEO',  desc:'Google\'s video model. Realistic motion, dramatic lighting, synchronized audio. Strong for cinematic.', use:'Branded visuals, mood videos, trailers', col:3,  row:4 },
+  { n:52, sym:'HGN',  name:'HeyGen',       cat:'VIDEO',  desc:'AI avatar video creation. 300+ realistic avatars, 170+ languages. Industry standard for explainers.', use:'Explainers, localization, training vids', col:4,  row:4 },
+  { n:53, sym:'SYN',  name:'Synthesia',    cat:'VIDEO',  desc:'Enterprise AI video platform. Avatar-based video at scale with team collaboration features.', use:'Corporate training, L&D, localization', col:5,  row:4 },
+  { n:54, sym:'HFS',  name:'Higgsfield',   cat:'VIDEO',  desc:'Multi-model video subscription. Access Runway, Kling, Pika, and others in one place.', use:'Video production, model comparison, workflow', col:6,  row:4 },
+  { n:55, sym:'PKA',  name:'Pika 2.0',     cat:'VIDEO',  desc:'Fast AI video generation. Pikadditions for adding elements, scene transitions. Consumer-friendly.', use:'Quick videos, social content, prototyping', col:7,  row:4 },
+  { n:56, sym:'KLG',  name:'Kling AI',     cat:'VIDEO',  desc:'Chinese video AI by Kuaishou. Strong physics simulation and motion consistency. Growing rapidly.', use:'Realistic video, motion, Chinese content', col:8,  row:4 },
+  { n:57, sym:'DCP',  name:'Descript',     cat:'VIDEO',  desc:'AI video/podcast editor. Edit video by editing transcript. Overdub for voice replacement.', use:'Podcast editing, video editing, screen rec', col:9,  row:4 },
+  { n:58, sym:'ZAP',  name:'Zapier AI',    cat:'AUTO',   desc:'The automation OG with AI brains. 7000+ app integrations + AI agents for workflow orchestration.', use:'Cross-app automation, AI workflows, triggers', col:10, row:4 },
+  { n:59, sym:'MAK',  name:'Make',         cat:'AUTO',   desc:'Visual automation platform (ex-Integromat). More powerful than Zapier for complex data flows.', use:'Complex automations, data transformation', col:11, row:4 },
+  { n:60, sym:'N8N',  name:'n8n',          cat:'AUTO',   desc:'Open-source workflow automation. Self-hostable, code-flexible. Loved by technical teams.', use:'Self-hosted automation, custom code, privacy', col:12, row:4 },
+  { n:61, sym:'LND',  name:'Lindy',        cat:'AUTO',   desc:'AI agent platform for business automation. 2500+ integrations, HIPAA-compliant, prebuilt templates.', use:'Business ops, HR, sales, customer support', col:13, row:4 },
+  { n:62, sym:'BRD',  name:'Bardeen',      cat:'AUTO',   desc:'Browser automation AI. Scrape LinkedIn, fill forms, update Google Sheets — no code.', use:'Web scraping, lead gen, data entry', col:14, row:4 },
+  { n:63, sym:'NOT',  name:'Notion AI',    cat:'PROD',   desc:'AI embedded in Notion workspace. Summarize, draft, database queries in natural language.', use:'Knowledge mgmt, team wikis, project docs', col:15, row:4 },
+  { n:64, sym:'CLK',  name:'ClickUp AI',   cat:'PROD',   desc:'Project management + AI Brain. Autopilot agents handle recurring work, task updates, reports.', use:'PM, team coordination, AI task management', col:16, row:4 },
+  { n:65, sym:'LIN',  name:'Linear AI',    cat:'PROD',   desc:'Engineering project mgmt with AI prioritization and triage. Loved by startups and eng teams.', use:'Issue tracking, sprint planning, eng mgmt', col:17, row:4 },
+  { n:66, sym:'ASN',  name:'Asana AI',     cat:'PROD',   desc:'Enterprise PM with AI workflow builder. Smart goals, status summaries, automated triage.', use:'Enterprise projects, cross-team, OKRs', col:18, row:4 },
+
+  // Row 5 — Data/Analytics (1-5), Design (6-11), Writing (12-18)
+  { n:67, sym:'TBL',  name:'Tableau AI',   cat:'DATA',   desc:'AI-powered data visualization. Tableau Pulse delivers proactive insights without queries.', use:'BI dashboards, proactive analytics, visual data', col:1,  row:5 },
+  { n:68, sym:'PBI',  name:'Power BI AI',  cat:'DATA',   desc:'Microsoft\'s BI tool with Copilot. Copilot generates reports from natural language questions.', use:'Business analytics, NL to reports, MS ecosystem', col:2,  row:5 },
+  { n:69, sym:'TLU',  name:'Tellius',      cat:'DATA',   desc:'AI analytics platform. Ask questions in plain English, get automated ML insights and predictions.', use:'Self-service analytics, business users, ML insights', col:3,  row:5 },
+  { n:70, sym:'JUL',  name:'Julius',       cat:'DATA',   desc:'AI data analyst. Upload spreadsheets or databases and have conversations about your data.', use:'Data analysis, spreadsheet insight, CSV chat', col:4,  row:5 },
+  { n:71, sym:'OBV',  name:'Obviously AI', cat:'DATA',   desc:'No-code predictive ML platform. Build prediction models from CSV in minutes without code.', use:'Churn prediction, forecasting, no-code ML', col:5,  row:5 },
+  { n:72, sym:'FIG',  name:'Figma AI',     cat:'DESIGN', desc:'AI in the world\'s leading design tool. Automate layers, generate assets, prototype from prompts.', use:'UI/UX design, prototyping, design systems', col:6,  row:5 },
+  { n:73, sym:'VZR',  name:'Vizcom',       cat:'DESIGN', desc:'AI industrial design tool. Sketch → photorealistic render instantly. For product designers.', use:'Product design, industrial, concept renders', col:7,  row:5 },
+  { n:74, sym:'GMA',  name:'Gamma',        cat:'DESIGN', desc:'AI presentation maker. Notes → beautiful slides + docs + webpages. Strong design defaults.', use:'Pitches, decks, one-pagers, presentations', col:8,  row:5 },
+  { n:75, sym:'NPN',  name:'Napkin AI',    cat:'DESIGN', desc:'Text-to-infographic. Pastes concept → auto-generates visual diagrams and infographics.', use:'Explainers, thought leadership, infographics', col:9,  row:5 },
+  { n:76, sym:'KRV',  name:'Krea',         cat:'DESIGN', desc:'Real-time AI image editing. Draw, iterate, enhance visually with live AI rendering.', use:'Creative exploration, concept iteration, AI art', col:10, row:5 },
+  { n:77, sym:'ADC',  name:'Adobe AI',     cat:'DESIGN', desc:'Adobe\'s AI across Creative Cloud. Firefly gen, Photoshop generative fill, video AI tools.', use:'Professional design, photo editing, video', col:11, row:5 },
+  { n:78, sym:'JSP',  name:'Jasper',       cat:'WRITE',  desc:'Enterprise AI writing platform. Long-form content, brand voice training, team collaboration.', use:'Marketing copy, blogs, brand content', col:12, row:5 },
+  { n:79, sym:'CPY',  name:'Copy.ai',      cat:'WRITE',  desc:'AI copywriting for sales and marketing. Workflows, GTM tools, multichannel content at scale.', use:'Sales copy, email sequences, GTM content', col:13, row:5 },
+  { n:80, sym:'WRT',  name:'Writer',       cat:'WRITE',  desc:'Enterprise AI writing with custom brand voice models. SOC2, HIPAA, enterprise-grade.', use:'Enterprise content, compliance, brand voice', col:14, row:5 },
+  { n:81, sym:'GRM',  name:'Grammarly AI', cat:'WRITE',  desc:'AI writing assistant embedded everywhere. Grammar, tone, rewrite suggestions, generative features.', use:'Editing, proofreading, tone adjustment', col:15, row:5 },
+  { n:82, sym:'SUD',  name:'Sudowrite',    cat:'WRITE',  desc:'AI writing tool built for fiction authors. Story Bible, character development, scene generation.', use:'Fiction writing, worldbuilding, novel drafting', col:16, row:5 },
+  { n:83, sym:'QLS',  name:'Quillbot',     cat:'WRITE',  desc:'AI paraphrasing and summarization. Used by millions of students and writers. Multilingual support.', use:'Paraphrasing, summarization, academic writing', col:17, row:5 },
+  { n:84, sym:'CMG',  name:'Copy.ai',      cat:'WRITE',  desc:'Generative AI for go-to-market teams. Automates prospect research and personalized outreach.', use:'Sales outreach, personalization, GTM automation', col:18, row:5 },
+
+  // Row 6 — Meetings/Collab (1-6), Multimodal (7-12), More agents (13-18)
+  { n:85, sym:'FTM',  name:'Fathom',       cat:'MEET',   desc:'AI meeting recorder. Real-time transcription, instant summaries, action items. Free tier generous.', use:'Meeting notes, follow-ups, async briefings', col:1,  row:6 },
+  { n:86, sym:'OTR',  name:'Otter.ai',     cat:'MEET',   desc:'AI meeting assistant. Live transcription, speaker ID, auto meeting summaries, calendar sync.', use:'Meeting transcription, notes, team sharing', col:2,  row:6 },
+  { n:87, sym:'GRN',  name:'Granola',      cat:'MEET',   desc:'Ambient meeting notes app. Runs on your Mac, captures context, generates structured notes.', use:'Quick meeting notes, async, Mac-native', col:3,  row:6 },
+  { n:88, sym:'FRD',  name:'Fireflies',    cat:'MEET',   desc:'AI meeting assistant. Records + transcribes + searches all your meetings. CRM integration.', use:'Sales calls, meeting search, CRM sync', col:4,  row:6 },
+  { n:89, sym:'AVA',  name:'Avoma',        cat:'MEET',   desc:'AI meeting intelligence for sales teams. Call analysis, coaching insights, deal tracking.', use:'Sales enablement, coaching, revenue intel', col:5,  row:6 },
+  { n:90, sym:'RCP',  name:'Reclaim AI',   cat:'MEET',   desc:'AI calendar and scheduling. Protects focus time, auto-schedules tasks, optimizes your week.', use:'Calendar optimization, focus blocks, scheduling', col:6,  row:6 },
+  { n:91, sym:'GPT4', name:'GPT-4o Voice', cat:'MULTI',  desc:'OpenAI\'s real-time voice mode. Natural conversation with emotion, tone, humor. Lowest latency.', use:'Voice AI, real-time chat, emotional AI', col:7,  row:6 },
+  { n:92, sym:'GML',  name:'Gemini Live',  cat:'MULTI',  desc:'Google\'s live voice + video AI. Point your camera, have real-time conversations about what it sees.', use:'Visual AI, real-time help, live context', col:8,  row:6 },
+  { n:93, sym:'PFT',  name:'Pi (Inflection)',cat:'MULTI', desc:'Conversational AI designed for emotional intelligence. Coaching, therapy-adjacent, empathetic.', use:'Personal assistant, emotional support, coaching', col:9,  row:6 },
+  { n:94, sym:'GKT',  name:'Google Lens',  cat:'MULTI',  desc:'Visual search AI. Point camera at anything — identify, translate, search, shop from image.', use:'Visual search, translation, shopping, ID', col:10, row:6 },
+  { n:95, sym:'MTA',  name:'Meta AI',      cat:'MULTI',  desc:'Meta\'s AI embedded across Facebook, Instagram, WhatsApp. Llama-powered, deeply social.', use:'Social platform AI, messaging, content', col:11, row:6 },
+  { n:96, sym:'CGA',  name:'Character.ai', cat:'MULTI',  desc:'Roleplay and character chat platform. Millions of custom AI characters. Gen-Z dominant.', use:'Entertainment, roleplay, character design, social', col:12, row:6 },
+  { n:97, sym:'OPR',  name:'Operator',     cat:'AGENTS', desc:'OpenAI\'s web browsing agent. Fills forms, makes purchases, completes tasks autonomously in browser.', use:'Web automation, purchases, form filling', col:13, row:6 },
+  { n:98, sym:'MNS',  name:'Manus',        cat:'AGENTS', desc:'Chinese general-purpose AI agent. Full computer control — browse, code, write, execute autonomously.', use:'General automation, research, content creation', col:14, row:6 },
+  { n:99, sym:'DGT',  name:'Devin',        cat:'AGENTS', desc:'Cognition\'s autonomous software engineer. End-to-end: planning → coding → testing → deployment.', use:'Autonomous software engineering, full-stack dev', col:15, row:6 },
+  { n:100,sym:'RBT',  name:'Replit Agent', cat:'AGENTS', desc:'Replit\'s AI that builds and deploys full apps. From idea to live URL in the browser.', use:'App prototyping, deployment, full-stack gen', col:16, row:6 },
+  { n:101,sym:'SCR',  name:'Screenpipe',   cat:'AGENTS', desc:'Open-source local AI with screen + mic capture. Builds memory from your computer activity.', use:'Local AI memory, context capture, personal AI', col:17, row:6 },
+  { n:102,sym:'ACT',  name:'Actor (Apple)',cat:'AGENTS', desc:'Apple\'s on-device AI agents via App Intents. Privacy-first, cross-app automation on iOS/macOS.', use:'Mobile automation, privacy-first, Apple ecosystem', col:18, row:6 },
+
+  // Row 7 — Mixed final elements
+  { n:103,sym:'SNO',  name:'Suno',         cat:'AUDIO',  desc:'Text-to-song AI. Full songs with vocals, instruments, lyrics. Multiple genres. Remarkable output.', use:'Music creation, jingles, content soundtrack', col:1,  row:7 },
+  { n:104,sym:'UDO',  name:'Udio',         cat:'AUDIO',  desc:'AI music generation. High audio quality, style control, remix capabilities. Strong competitor to Suno.', use:'Music production, stems, style transfer', col:2,  row:7 },
+  { n:105,sym:'STB',  name:'Stability Audio',cat:'AUDIO',desc:'Stable Audio by Stability AI. Open-source music and sound effect generation. API available.', use:'SFX, music, open-source audio gen', col:3,  row:7 },
+  { n:106,sym:'MZK',  name:'MusicGen',     cat:'AUDIO',  desc:'Meta\'s open-source music model. Controllable, fine-tunable. Research and developer favorite.', use:'Music research, custom audio apps, open-source', col:4,  row:7 },
+  { n:107,sym:'ACE',  name:'Ace Studio',   cat:'AUDIO',  desc:'AI singing voice studio. Train custom singer voices, produce full vocal performances.', use:'Music production, virtual artists, vocal gen', col:5,  row:7 },
+  { n:108,sym:'POE',  name:'Poe',          cat:'LLM',    desc:'Quora\'s multi-model AI hub. Access Claude, GPT-4, Gemini, and more in one interface.', use:'Model comparison, multi-LLM access, exploration', col:6,  row:7 },
+  { n:109,sym:'GRK3', name:'Grok Voice',   cat:'MULTI',  desc:'Grok\'s voice mode with real-time X data. Personality-driven AI assistant.', use:'Voice conversations, real-time info, personality', col:7,  row:7 },
+  { n:110,sym:'KRO',  name:'Kiro (AWS)',   cat:'CODING', desc:'AWS\'s agentic IDE. Spec-driven development + vibe coding modes. Deep AWS integration.', use:'AWS native dev, spec-driven coding, cloud apps', col:8,  row:7 },
+  { n:111,sym:'DBR',  name:'Databricks AI',cat:'DATA',   desc:'Data + AI platform. Mosaic AI for custom model training and fine-tuning on your data lakehouse.', use:'Enterprise ML, custom models, data platform', col:9,  row:7 },
+  { n:112,sym:'SNW',  name:'Snowflake AI', cat:'DATA',   desc:'Cortex AI in Snowflake. Run LLMs on your data warehouse. No data movement, full SQL access.', use:'Data warehouse AI, SQL + LLM, enterprise', col:10, row:7 },
+  { n:113,sym:'SLS',  name:'Salesforce AI',cat:'PROD',   desc:'Agentforce platform. AI agents handle sales, service, marketing workflows natively in Salesforce.', use:'CRM automation, sales AI, customer service', col:11, row:7 },
+  { n:114,sym:'HUB',  name:'HubSpot AI',   cat:'PROD',   desc:'AI across HubSpot CRM. Content generation, prospecting, deal scoring, chatbots, forecasting.', use:'Inbound marketing, sales, CRM, SMB', col:12, row:7 },
+  { n:115,sym:'MCT',  name:'Microsoft 365',cat:'PROD',   desc:'Copilot across Word, Excel, PowerPoint, Teams, Outlook. AI embedded in every Microsoft tool.', use:'Office productivity, enterprise, MS ecosystem', col:13, row:7 },
+  { n:116,sym:'SAP',  name:'SAPAI',        cat:'INFRA',  desc:'SAP Business AI. AI across ERP, procurement, HR, finance. Enterprise-grade, compliance-focused.', use:'Enterprise ERP, SAP ecosystem, compliance', col:14, row:7 },
+  { n:117,sym:'OPN',  name:'OpenRouter',   cat:'INFRA',  desc:'Unified API for 100+ LLM models. Route to cheapest/fastest/best model for each use case.', use:'Multi-model routing, cost optimization, LLM ops', col:15, row:7 },
+  { n:118,sym:'RPC',  name:'Replicate',    cat:'INFRA',  desc:'Cloud platform for running open-source AI models via API. Inference without managing infra.', use:'Open model inference, API, rapid prototyping', col:16, row:7 },
+];
+
+// Build legend
+const legendEl = document.getElementById('legend');
+for (const [key, val] of Object.entries(CATEGORIES)) {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `<div class="legend-dot" style="background:${val.color}"></div>${val.label}`;
+  legendEl.appendChild(item);
+}
+
+// Build grid
+const grid = document.getElementById('grid');
+const ROWS = 7;
+const COLS = 18;
+
+// Create a map for fast lookup
+const elementMap = {};
+for (const el of ELEMENTS) {
+  elementMap[`${el.row}-${el.col}`] = el;
+}
+
+for (let r = 1; r <= ROWS; r++) {
+  for (let c = 1; c <= COLS; c++) {
+    const el = elementMap[`${r}-${c}`];
+    const cell = document.createElement('div');
+
+    if (el) {
+      const cat = CATEGORIES[el.cat];
+      const color = cat ? cat.color : '#888';
+      cell.className = 'element';
+      cell.style.setProperty('--cat-color', color);
+      cell.innerHTML = `
+        <div class="el-num">${String(el.n).padStart(2,'0')}</div>
+        <div class="el-symbol">${el.sym}</div>
+        <div class="el-name">${el.name}</div>
+        <div class="el-cat">${cat ? cat.label : el.cat}</div>
+      `;
+      cell.addEventListener('mouseenter', (e) => showTooltip(e, el, color));
+      cell.addEventListener('mouseleave', hideTooltip);
+      cell.addEventListener('mousemove', moveTooltip);
+    } else {
+      cell.className = 'element empty';
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+// Tooltip logic
+const tooltip = document.getElementById('tooltip');
+let activeColor = '#888';
+
+function showTooltip(e, el, color) {
+  activeColor = color;
+  const cat = CATEGORIES[el.cat];
+  tooltip.style.setProperty('--cat-color', color);
+  tooltip.innerHTML = `
+    <div class="tt-header">
+      <div class="tt-symbol">${el.sym}</div>
+      <div class="tt-info">
+        <div class="tt-name">${el.name}</div>
+        <div class="tt-cat">${cat ? cat.label : el.cat}</div>
+        <div class="tt-num">Element #${el.n}</div>
+      </div>
+    </div>
+    <div class="tt-desc">${el.desc}</div>
+    <div class="tt-use">⚡ ${el.use}</div>
+  `;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+function moveTooltip(e) {
+  const tw = 260;
+  const th = 180;
+  let x = e.clientX + 16;
+  let y = e.clientY - 20;
+  if (x + tw > window.innerWidth) x = e.clientX - tw - 16;
+  if (y + th > window.innerHeight) y = e.clientY - th;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
+</script>
+</body>
+</html>
